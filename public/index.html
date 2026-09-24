@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unity Text Controller</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        input { padding: 10px; font-size: 16px; width: 300px; }
+        button { padding: 10px 20px; font-size: 16px; margin-left: 10px; }
+        #status { margin-top: 10px; color: gray; }
+    </style>
+</head>
+<body>
+    <h1>Control Unity Text</h1>
+    <input type="text" id="textInput" placeholder="Enter new text..." value="Hello from the web!">
+    <button onclick="sendText()">Update Unity Text</button>
+    <div id="status">Connecting...</div>
+
+    <script>
+        // Change this to your Vercel URL after deploying
+        const socket = new WebSocket('wss://YOUR-PROJECT.vercel.app/api/ws');
+        const status = document.getElementById('status');
+
+        socket.onopen = () => {
+            status.textContent = 'Connected ✅';
+            status.style.color = 'green';
+            console.log('Connected to WebSocket server');
+        };
+
+        socket.onclose = () => {
+            status.textContent = 'Disconnected ❌';
+            status.style.color = 'red';
+        };
+
+        socket.onerror = (err) => {
+            console.error('WebSocket error:', err);
+        };
+
+        function sendText() {
+            const input = document.getElementById('textInput');
+            const text = input.value;
+            if (text && socket.readyState === WebSocket.OPEN) {
+                socket.send(text);
+                console.log('Sent:', text);
+            }
+        }
+
+        document.getElementById('textInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendText();
+        });
+    </script>
+</body>
+</html>
